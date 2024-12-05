@@ -155,7 +155,7 @@ func (b *bucket[T]) deletePrefix(prefix string, deletables chan *Item[T]) int {
 // we expect the caller to have acquired a write lock
 func (b *bucket[T]) clear() {
 	for _, item := range b.lookup {
-		item.promotions = -2
+		item.setDeleted()
 	}
 	b.lookup = make(map[string]*Item[T])
 }
