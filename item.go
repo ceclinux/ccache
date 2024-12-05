@@ -52,6 +52,14 @@ func newItem[T any](key string, value T, expires int64, track bool) *Item[T] {
 	return item
 }
 
+func (i *Item[T]) isDeleted() bool {
+	return i.promotions == -2
+}
+
+func (i *Item[T]) setDeleted() {
+	i.promotions = -2
+}
+
 func (i *Item[T]) shouldPromote(getsPerPromote int32) bool {
 	i.promotions += 1
 	return i.promotions == getsPerPromote

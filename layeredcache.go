@@ -289,21 +289,19 @@ drain:
 }
 
 func (c *LayeredCache[T]) doDelete(item *Item[T]) {
-	if item.prev == nil && item.next == nil {
-		item.promotions = -2
-	} else {
+	if !(item.prev == nil && item.next == nil) {
 		c.size -= item.size
 		if c.onDelete != nil {
 			c.onDelete(item)
 		}
 		c.list.Remove(item)
-		item.promotions = -2
 	}
+	item.setDeleted()
 }
 
 func (c *LayeredCache[T]) doPromote(item *Item[T]) bool {
 	// deleted before it ever got promoted
-	if item.promotions == -2 {
+	if item.isDeleted() {
 		return false
 	}
 
@@ -342,7 +340,7 @@ func (c *LayeredCache[T]) gc() int {
 				c.onDelete(item)
 			}
 			dropped += 1
-			item.promotions = -2
+			item.setDeleted()
 		}
 		item = prev
 	}

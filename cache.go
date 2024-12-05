@@ -327,21 +327,19 @@ doAllDeletes:
 }
 
 func (c *Cache[T]) doDelete(item *Item[T]) {
-	if item.next == nil && item.prev == nil {
-		item.promotions = -2
-	} else {
+	if !(item.next == nil && item.prev == nil) {
 		c.size -= item.size
 		if c.onDelete != nil {
 			c.onDelete(item)
 		}
 		c.list.Remove(item)
-		item.promotions = -2
 	}
+	item.setDeleted()
 }
 
 func (c *Cache[T]) doPromote(item *Item[T]) bool {
 	//already deleted
-	if item.promotions == -2 {
+	if item.isDeleted() {
 		return false
 	}
 
@@ -380,7 +378,7 @@ func (c *Cache[T]) gc() int {
 				c.onDelete(item)
 			}
 			dropped += 1
-			item.promotions = -2
+			item.setDeleted()
 		}
 		item = prev
 	}
